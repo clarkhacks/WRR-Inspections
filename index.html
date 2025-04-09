@@ -4056,6 +4056,7 @@ AAQA8wAAAHkFAAAAAA==
     <script>
         function distributeTallies(sectionId, inputId) {
             const maxPerGroup = 5; // Maximum number per group
+            const maxGroupsPerCell = 3; // Maximum groups per cell
             const input = document.getElementById(inputId).value; // Get the input value
             const totalTallies = parseInt(input, 10) || 0; // Parse the input as an integer
             const cells = document.querySelectorAll(`#${sectionId} td`); // Get all cells in the section
@@ -4064,12 +4065,17 @@ AAQA8wAAAHkFAAAAAA==
 
             // Iterate through each cell and append tallies
             cells.forEach(cell => {
-                let cellContent = '';
-                while (remainingTallies > 0 && cellContent.split('   ').join('').length < maxPerGroup * 3) {
+                let existingContent = cell.textContent.trim(); // Preserve existing content
+                let cellContent = existingContent ? existingContent + '   ' : ''; // Add space if content exists
+                let groupsInCell = existingContent ? existingContent.split('   ').length : 0;
+
+                while (remainingTallies > 0 && groupsInCell < maxGroupsPerCell) {
                     const groupSize = Math.min(remainingTallies, maxPerGroup);
                     cellContent += `${groupSize}   `;
                     remainingTallies -= groupSize;
+                    groupsInCell++;
                 }
+
                 cell.textContent = cellContent.trim(); // Update the cell content
             });
         }
