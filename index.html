@@ -7862,8 +7862,8 @@ AAQA8wAAAHkFAAAAAA==
                 groupsInCell++;
             }
 
-            // If no tallies are left, keep the cell content as a space
-            cell.textContent = cellContent.trim() || ' ';
+            // If no tallies are left or in the cell, then add a paragraph tag with "NONE"
+            cell.innerHTML = cellContent.trim() || '<p>NONE</p>';
         });
     }
 
