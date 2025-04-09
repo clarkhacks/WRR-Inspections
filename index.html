@@ -7862,8 +7862,8 @@ AAQA8wAAAHkFAAAAAA==
                 groupsInCell++;
             }
 
-            // If no tallies are left or in the cell, then add a paragraph tag with a full height
-            cell.innerHTML = cellContent.trim() || '<p style="height: 100%;"></p>';
+            // If no tallies are left or in the cell, then add a paragraph tag with an invisible character
+            cell.innerHTML = cellContent.trim() || '<p style="visibility: hidden;">&nbsp;</p>';
         });
     }
 
