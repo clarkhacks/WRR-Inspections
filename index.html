@@ -2706,6 +2706,18 @@ Inspected: ${Insp/Count}<o:p></o:p></p>
 
 
 
+<script>
+  function setTodayDate() {
+    const today = new Date();
+    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+    const yyyy = today.getFullYear();
+    const formattedDate = `${dd}/${mm}/${yyyy}`;
+    document.getElementById('autoDate').textContent = formattedDate;
+  }
 
+  // Run on page load
+  window.addEventListener('DOMContentLoaded', setTodayDate);
+</script>
 
 </body></html>
