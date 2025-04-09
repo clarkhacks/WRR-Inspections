@@ -7806,7 +7806,7 @@ AAQA8wAAAHkFAAAAAA==
             <o:p>&nbsp;</o:p>
         </p>
 
-        <p class="MsoFooter">Total Inbound Count: ${TotalTallies}<w:ptab alignment="CENTER" relativeto="MARGIN" leader="NONE" style="
+        <p class="MsoFooter">Total Inbound Count: <span id="totalTallies">0</span></span><w:ptab alignment="CENTER" relativeto="MARGIN" leader="NONE" style="
     width: 15%;
     display: inline-block;
 "></w:ptab>Total Inbound Inspections:
@@ -7867,10 +7867,19 @@ AAQA8wAAAHkFAAAAAA==
         });
     }
 
+    function getTotalCount() {
+        const p66in = parseInt(document.getElementById('p66in').value) || 0;
+        const conin = parseInt(document.getElementById('conin').value) || 0;
+        const perin = parseInt(document.getElementById('perin').value) || 0;
+        // update the total count in the footer
+        document.getElementById('totalTallies').textContent = p66in + conin + perin;
+    }
+
     function updateAllTallies() {
         distributeTallies('p66Section', 'p66in');
         distributeTallies('contractorSection', 'conin');
         distributeTallies('personalSection', 'perin');
+        getTotalCount();
     }
 
     // Attach event listeners to inputs
