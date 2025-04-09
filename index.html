@@ -4055,32 +4055,22 @@ AAQA8wAAAHkFAAAAAA==
     </script>
     <script>
         function distributeTallies(sectionId, inputId) {
-            const maxTalliesPerCell = 15; // Maximum tallies per cell
+            const maxPerGroup = 5; // Maximum number per group
             const input = document.getElementById(inputId).value; // Get the input value
             const totalTallies = parseInt(input, 10) || 0; // Parse the input as an integer
             const cells = document.querySelectorAll(`#${sectionId} td`); // Get all cells in the section
 
             let remainingTallies = totalTallies;
 
-            // Clear all cells first
+            // Iterate through each cell and append tallies
             cells.forEach(cell => {
-                cell.textContent = ''; // Clear previous tallies
-            });
-
-            // Distribute tallies across cells
-            cells.forEach(cell => {
-                if (remainingTallies > 0) {
-                    const talliesForCell = Math.min(remainingTallies, maxTalliesPerCell);
-                    let tallyString = '';
-                    for (let i = 1; i <= talliesForCell; i++) {
-                        tallyString += i;
-                        if (i % 5 === 0 && i < talliesForCell) {
-                            tallyString += '   '; // Add 3 spaces after every group of 5
-                        }
-                    }
-                    cell.textContent = tallyString;
-                    remainingTallies -= talliesForCell;
+                let cellContent = '';
+                while (remainingTallies > 0 && cellContent.split('   ').join('').length < maxPerGroup * 3) {
+                    const groupSize = Math.min(remainingTallies, maxPerGroup);
+                    cellContent += `${groupSize}   `;
+                    remainingTallies -= groupSize;
                 }
+                cell.textContent = cellContent.trim(); // Update the cell content
             });
         }
 
@@ -4095,7 +4085,6 @@ AAQA8wAAAHkFAAAAAA==
         document.getElementById('conin').addEventListener('input', updateAllTallies);
         document.getElementById('perin').addEventListener('input', updateAllTallies);
     </script>
-
 
 </body>
 
