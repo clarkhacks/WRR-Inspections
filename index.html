@@ -3542,46 +3542,26 @@ mso-bidi-theme-font:major-bidi">
     </div>
 
     <script>
+        // ========== Utility Functions ==========
         function setTodayDate() {
             const today = new Date();
             const dd = String(today.getDate()).padStart(2, '0');
-            const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
             const yyyy = today.getFullYear();
             const formattedDate = `Date: ${dd}/${mm}/${yyyy}`;
             document.getElementById('autoDate').textContent = formattedDate;
         }
 
-        // Run on page load
-        window.addEventListener('DOMContentLoaded', setTodayDate);
-    </script>
-
-    <script>
-        function setTodayDate() {
-            const today = new Date();
-            const dd = String(today.getDate()).padStart(2, '0');
-            const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-            const yyyy = today.getFullYear();
-            const formattedDate = `Date: ${dd}/${mm}/${yyyy}`;
-            document.getElementById('autoDate').textContent = formattedDate;
-        }
-
-        // Run on page load
-        window.addEventListener('DOMContentLoaded', setTodayDate);
-    </script>
-
-    <script>
         function distributeTallies(sectionId, inputId) {
-            const maxPerGroup = 5; // Maximum number per group
-            const maxGroupsPerCell = 3; // Maximum groups per cell
-            const input = document.getElementById(inputId).value; // Get the input value
-            const totalTallies = parseInt(input, 10) || 0; // Parse the input as an integer
-            const cells = document.querySelectorAll(`#${sectionId} td`); // Get all cells in the section
+            const maxPerGroup = 5;
+            const maxGroupsPerCell = 3;
+            const input = document.getElementById(inputId).value;
+            const totalTallies = parseInt(input, 10) || 0;
+            const cells = document.querySelectorAll(`#${sectionId} td`);
 
             let remainingTallies = totalTallies;
-
-            // Iterate through each cell and adjust tallies
             cells.forEach(cell => {
-                let cellContent = ''; // Reset cell content for tally distribution
+                let cellContent = '';
                 let groupsInCell = 0;
 
                 while (remainingTallies > 0 && groupsInCell < maxGroupsPerCell) {
@@ -3591,7 +3571,6 @@ mso-bidi-theme-font:major-bidi">
                     groupsInCell++;
                 }
 
-                // If no tallies are left or in the cell, then add a paragraph tag with an invisible character
                 cell.innerHTML = cellContent.trim() || '<p style="visibility: hidden;">&nbsp;</p>';
             });
         }
@@ -3606,16 +3585,14 @@ mso-bidi-theme-font:major-bidi">
                 let rowHasContent = false;
 
                 for (let j = 0; j < cells.length; j++) {
-                    const input = cells[j].querySelector('input'); // Get the input element inside the cell
+                    const input = cells[j].querySelector('input');
                     if (input && input.value.trim() !== '') {
-                        rowHasContent = true; // Mark the row as having content
-                        break; // Stop checking other cells in this row
+                        rowHasContent = true;
+                        break;
                     }
                 }
 
-                if (rowHasContent) {
-                    count++; // Increment the count for rows with content
-                }
+                if (rowHasContent) count++;
             }
 
             return count;
@@ -3625,73 +3602,116 @@ mso-bidi-theme-font:major-bidi">
             const p66in = parseInt(document.getElementById('p66in').value) || 0;
             const conin = parseInt(document.getElementById('conin').value) || 0;
             const perin = parseInt(document.getElementById('perin').value) || 0;
-            // update the total count in the footer
             document.getElementById('totalTallies').textContent = p66in + conin + perin;
+        }
+
+        function updateTotalTallies() {
+            const p66in = parseInt(document.getElementById('p66in').value) || 0;
+            const conin = parseInt(document.getElementById('conin').value) || 0;
+            const perin = parseInt(document.getElementById('perin').value) || 0;
+            const totalTallies = p66in + conin + perin;
+            const url = new URL(window.location.href);
+            url.searchParams.set('p66in', p66in);
+            url.searchParams.set('conin', conin);
+            url.searchParams.set('perin', perin);
+            window.history.pushState({}, '', url);
+            document.getElementById('totalTallies').innerHTML = `${totalTallies}`;
         }
 
         function updateAllTallies() {
             distributeTallies('p66Section', 'p66in');
             distributeTallies('contractorSection', 'conin');
             distributeTallies('personalSection', 'perin');
-            const totalInsp = getInspectionCount(); // Get the inspection count
-            document.getElementById('totalInsp').textContent = totalInsp; // Update the inspection count in the footer
-            const percentInsp = ((totalInsp / 35) * 100).toFixed(2); // Calculate the percentage of inspections
-            document.getElementById('percentInsp').textContent = `${percentInsp}%`; // Update the percentage in the footer
 
-            updateTotalTallies(); // Update the total count in the footer
+            const totalInsp = getInspectionCount();
+            document.getElementById('totalInsp').textContent = totalInsp;
+            const percentInsp = ((totalInsp / 35) * 100).toFixed(2);
+            document.getElementById('percentInsp').textContent = `${percentInsp}%`;
+
+            updateTotalTallies();
             getTotalCount();
             console.log('Tallies updated!');
         }
 
-        // Attach event listeners to inputs
-        document.getElementById('p66in').addEventListener('input', updateAllTallies);
-        document.getElementById('conin').addEventListener('input', updateAllTallies);
-        document.getElementById('perin').addEventListener('input', updateAllTallies);
-        // if the inspection table is updated then also update the total count
-        const inspectionTable = document.getElementById('inspectionTable');
-        const inputs = inspectionTable.querySelectorAll('input[type="text"]');
-        inputs.forEach(input => {
-            input.addEventListener('input', updateAllTallies);
-        });
+        function syncInspectionTextAndURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const inspection = urlParams.get('inspection');
+            const inOrOut = document.querySelectorAll('[data-type="inOrOut"]');
 
-
-        // #selectP66, #selectContractor, #selectPersonal clicked then make the input active and focus on it
-        document.getElementById('selectP66').addEventListener('click', function () {
-            document.getElementById('p66in').focus();
-        });
-        document.getElementById('selectContractor').addEventListener('click', function () {
-            document.getElementById('conin').focus();
-        });
-        document.getElementById('selectPersonal').addEventListener('click', function () {
-            document.getElementById('perin').focus();
-        });
-        // update totalTallies
-        function updateTotalTallies() {
-            const p66in = parseInt(document.getElementById('p66in').value) || 0;
-            const conin = parseInt(document.getElementById('conin').value) || 0;
-            const perin = parseInt(document.getElementById('perin').value) || 0;
-            const totalTallies = p66in + conin + perin;
-            document.getElementById('totalTallies').innerHTML = `${totalTallies}`;
-        }
-        // Attach event listeners to inputs
-
-    </script>
-    <script>
-        // get ?inspection= from url and if the value is in then adjust data-type="inOrOut" to have text that matches Inbound or Outbound
-        const urlParams = new URLSearchParams(window.location.search);
-        const inspection = urlParams.get('inspection');
-        const inOrOut = document.querySelectorAll('[data-type="inOrOut"]');
-        if (inspection) {
             inOrOut.forEach(element => {
-                element.textContent = inspection === 'in' ? 'Inbound' : 'Outbound';
+                element.style.cursor = 'pointer';
+                element.addEventListener('click', function () {
+                    const currentText = element.textContent.trim();
+                    const newText = currentText === 'Inbound' ? 'Outbound' : 'Inbound';
+                    inOrOut.forEach(el => el.textContent = newText);
+
+                    const newInspection = newText.toLowerCase().includes('in') ? 'in' : 'out';
+                    const newUrl = new URL(window.location.href);
+                    newUrl.searchParams.set('inspection', newInspection);
+                    window.history.pushState({}, '', newUrl);
+                    console.log('URL updated to:', newUrl.toString());
+                });
             });
-        } else {
+
             inOrOut.forEach(element => {
-                element.textContent = 'Inbound'; // Default value if no parameter is found
+                element.textContent = inspection === 'out' ? 'Outbound' : 'Inbound';
             });
         }
 
+        function applyURLParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const p66in = urlParams.get('p66in');
+            const conin = urlParams.get('conin');
+            const perin = urlParams.get('perin');
+
+            if (p66in) {
+                document.getElementById('p66in').value = p66in;
+                distributeTallies('p66Section', 'p66in');
+            }
+            if (conin) {
+                document.getElementById('conin').value = conin;
+                distributeTallies('contractorSection', 'conin');
+            }
+            if (perin) {
+                document.getElementById('perin').value = perin;
+                distributeTallies('personalSection', 'perin');
+            }
+
+            if (p66in || conin || perin) {
+                updateTotalTallies();
+            }
+        }
+
+        // ========== On Page Load ==========
+        window.addEventListener('DOMContentLoaded', () => {
+            setTodayDate();
+            syncInspectionTextAndURL();
+            applyURLParams();
+
+            // Event listeners for inputs
+            document.getElementById('p66in').addEventListener('input', updateAllTallies);
+            document.getElementById('conin').addEventListener('input', updateAllTallies);
+            document.getElementById('perin').addEventListener('input', updateAllTallies);
+
+            const inspectionTable = document.getElementById('inspectionTable');
+            const inputs = inspectionTable.querySelectorAll('input[type="text"]');
+            inputs.forEach(input => {
+                input.addEventListener('input', updateAllTallies);
+            });
+
+            // Click handlers for selectors
+            document.getElementById('selectP66').addEventListener('click', () => {
+                document.getElementById('p66in').focus();
+            });
+            document.getElementById('selectContractor').addEventListener('click', () => {
+                document.getElementById('conin').focus();
+            });
+            document.getElementById('selectPersonal').addEventListener('click', () => {
+                document.getElementById('perin').focus();
+            });
+        });
     </script>
+
 
 
 
